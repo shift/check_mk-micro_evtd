@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+MICROAPL=`which microapl`
+
+# [W]arning and [C]ritical temps
+TEMP_W=40
+TEMP_C=45
+
+# [W]arning and [C]ritical RPMs
+RPM_W=1000
+RPM_C=1500
+
+function get_temp_status {
+  CURR=$1
+  WARN=$2
+  CRIT=$3
+  STATUS=0
+  
+  if [[ $CURR -ge $WARN ]]
+  then
+    STATUS=1
+  elif [[ $CURR -ge $CRIT ]]
+  then
+    STATUS=2
+  fi
+  echo $STATUS
+}
+
+function get_fan_status {
+  CURR=$1
+  WARN=$2
+  CRIT=$3
+  STATUS=0
+  
+  if [[ $CURR -le $WARN ]]
+  then
+    STATUS=1
+  elif [[ $CURR -le $CRIT ]]
+  then
+    STATUS=2
+  fi
+  echo $STATUS
+}
+
+# Get Temp
+TEMP=`$MICROAPL -a temp_get | awk -F"=" '/^temp=/{print $2}' | awk '{gsub (/\[C-degs\]/,"")};1'`
+
+# Get fan speed
+RPM=`$MICROAPL -a fan_get_speed | awk -F"=" '/^fan_rpm=/{print $2}' | awk '{gsub (/rpm/,"")};1'`
+
+echo "`get_temp_status $TEMP $TEMP_W $TEMP_C` micro_evtd_temp temp=$TEMP;$TEMP_W;$TEMP_C;0; $TEMP oC"
+echo "`get_fan_status $RPM $RPM_W $RPM_C` micro_evtd_rpm rpm=$RPM;$RPM_W;$RPM_C;0; $RPM rpm"
