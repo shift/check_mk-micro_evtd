@@ -7,8 +7,8 @@ TEMP_W=40
 TEMP_C=45
 
 # [W]arning and [C]ritical RPMs
-RPM_W=1000
-RPM_C=1500
+RPM_W=1500
+RPM_C=1000
 
 function get_temp_status {
   CURR=$1
